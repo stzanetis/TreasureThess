@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TreasureThess</title>
+  <meta name="description" content="Check in at this place with the TreasureThess app and earn points for local rewards." />
+  <link rel="icon" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="site.js"></script>
+</head>
+<body>
+  <!-- Landing page for the NFC tags and QR codes at places: treasurethess.app/place.html?id=<place id> -->
+  <header class="site">
+    <div class="wrap">
+      <a class="logo" href="index.html"><img src="icon.png" alt="" />TreasureThess</a>
+      <nav class="links"><a class="btn btn-primary btn-small" href="index.html#download" data-t="download">Download</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="wrap narrow">
+        <div id="hero" class="place-hero">★</div>
+        <div class="place-meta"><span id="collection" hidden></span><span id="points" hidden></span></div>
+        <h1 id="name" data-t="loading">Loading…</h1>
+        <p id="description" class="lead"></p>
+        <div class="btn-row" style="margin-top: 20px">
+          <a class="btn btn-primary" href="index.html#download" data-t="get">Get the app and check in</a>
+          <a id="directions" class="btn btn-ghost" hidden data-t="map">Open in maps</a>
+        </div>
+        <p class="note" data-t="have">Already have TreasureThess? Open the app here and tap the check-in button.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site">
+    <div class="wrap">
+      <div>© 2026 TreasureThess · Made in Thessaloniki</div>
+      <div><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script>
+    const lang = navigator.language.startsWith('el') ? 'el' : 'en';
+    const text = {
+      en: { download: 'Download', loading: 'Loading…', get: 'Get the app and check in', map: 'Open in maps',
+            have: 'Already have TreasureThess? Open the app here and tap the check-in button.',
+            points: '+{n} points', missing: 'Place not found', missingText: 'This link may be out of date. See all places in the app.' },
+      el: { download: 'Λήψη', loading: 'Φόρτωση…', get: 'Κατέβασε την εφαρμογή και κάνε check-in', map: 'Άνοιγμα στον χάρτη',
+            have: 'Έχεις ήδη το TreasureThess; Άνοιξε την εφαρμογή εδώ και πάτησε το κουμπί check-in.',
+            points: '+{n} πόντοι', missing: 'Το μέρος δεν βρέθηκε', missingText: 'Ο σύνδεσμος μπορεί να είναι παλιός. Δες όλα τα μέρη στην εφαρμογή.' },
+    }[lang];
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = text[el.dataset.t]; });
+
+    const show = (id, value) => { const el = document.getElementById(id); el.textContent = value; el.hidden = false; };
+
+    async function load() {
+      const id = new URLSearchParams(location.search).get('id') ?? '';
+      const columns = 'name_en,name_el,description_en,description_el,latitude,longitude,points,image_url,collection:collections(name_en,name_el,color)';
+      const response = await fetch(`${TT_CONFIG.supabaseUrl}/rest/v1/places?id=eq.${encodeURIComponent(id)}&select=${columns}`, {
+        headers: { apikey: TT_CONFIG.supabaseAnonKey, Authorization: `Bearer ${TT_CONFIG.supabaseAnonKey}` },
+      });
+      const [place] = response.ok ? await response.json() : [];
+      if (!place) {
+        show('name', text.missing);
+        show('description', text.missingText);
+        return;
+      }
+      const name = place[`name_${lang}`];
+      document.title = `${name} · TreasureThess`;
+      show('name', name);
+      show('description', place[`description_${lang}`] ?? '');
+      show('points', text.points.replace('{n}', place.points));
+      const hero = document.getElementById('hero');
+      if (place.collection) {
+        show('collection', place.collection[`name_${lang}`]);
+        const chip = document.getElementById('collection');
+        chip.style.color = place.collection.color;
+        chip.style.background = `${place.collection.color}22`;
+        hero.style.backgroundColor = place.collection.color;
+      }
+      if (place.image_url) {
+        hero.style.backgroundImage = `url("${encodeURI(place.image_url)}")`;
+        hero.textContent = '';
+      }
+      const directions = document.getElementById('directions');
+      directions.href = `https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`;
+      directions.hidden = false;
+    }
+    load().catch(() => show('name', text.missing));
+  </script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Partner program · TreasureThess</title>
+  <meta name="description" content="Bring visitors exploring Thessaloniki to your shop, café or museum. Offer coupons that TreasureThess users unlock with the points they earn visiting the city." />
+  <link rel="icon" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="site.js"></script>
+</head>
+<body>
+  <header class="site">
+    <div class="wrap">
+      <a class="logo" href="index.html"><img src="icon.png" alt="" />TreasureThess</a>
+      <nav class="links">
+        <a href="index.html#how">How it works</a>
+        <a href="about.html">About</a>
+        <a href="partners.html">Partners</a>
+        <a class="btn btn-primary btn-small" href="index.html#download">Download</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-copy">
+          <div class="eyebrow">Partner program</div>
+          <h1>Turn explorers into <em>customers</em>.</h1>
+          <p class="lead">TreasureThess users walk from sight to sight, many of them visitors who don't know the city yet. Offer them a coupon and give them a reason to stop at your door.</p>
+          <div class="btn-row"><a class="btn btn-primary" href="#apply">Apply to join</a></div>
+        </div>
+        <div class="card">
+          <h3>Why partner with us</h3>
+          <ul class="muted">
+            <li>Your business appears in the app's Rewards tab, in English and Greek</li>
+            <li>Visitors earn the coupon by exploring, so they arrive motivated to use it</li>
+            <li>You choose the offer, the stock and the expiry date</li>
+            <li>Museums and attractions can also become places to check in to</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="wrap">
+        <div class="eyebrow">How redemption works</div>
+        <h2>Simple at the counter.</h2>
+        <div class="grid-3" style="margin-top: 28px">
+          <div class="card"><div class="num">1</div><h3>Visitor redeems</h3><p>They spend points on your coupon in the app. It waits in their wallet.</p></div>
+          <div class="card"><div class="num">2</div><h3>Shows it live</h3><p>At your counter they tap "Show to staff". A code, a QR and a 10-minute countdown appear.</p></div>
+          <div class="card"><div class="num">3</div><h3>You check the timer</h3><p>A moving "LIVE" badge and a running timer mean it's real, not a screenshot. Once the timer ends, the coupon is used.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="apply">
+      <div class="wrap narrow">
+        <div class="eyebrow">Apply</div>
+        <h2>Tell us about your business</h2>
+        <p class="muted">We review every application and reply by email within a few days.</p>
+        <form id="partner-form" class="card">
+          <div class="field"><label for="business_name">Business name</label><input id="business_name" name="business_name" required minlength="2" maxlength="120" /></div>
+          <div class="field"><label for="contact_name">Your name</label><input id="contact_name" name="contact_name" required minlength="2" maxlength="120" /></div>
+          <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required /></div>
+          <div class="field"><label for="phone">Phone (optional)</label><input id="phone" name="phone" maxlength="40" /></div>
+          <div class="field">
+            <label for="category">Type of business</label>
+            <select id="category" name="category">
+              <option>Café / bar</option>
+              <option>Restaurant / food</option>
+              <option>Shop / retail</option>
+              <option>Museum / attraction</option>
+              <option>Tours / experiences</option>
+              <option>Municipality / tourism body</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field"><label for="message">What would you like to offer? (optional)</label><textarea id="message" name="message" maxlength="2000" placeholder="e.g. a free coffee with any pastry, or a free second museum ticket"></textarea></div>
+          <button class="btn btn-primary" type="submit">Send application</button>
+          <div id="form-status" class="form-status" role="status"></div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site">
+    <div class="wrap">
+      <div>© 2026 TreasureThess · Made in Thessaloniki</div>
+      <div><a href="about.html">About</a><a href="partners.html">Partners</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="delete-account.html">Delete account</a></div>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script>
+    const form = document.getElementById('partner-form');
+    const status = document.getElementById('form-status');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const button = form.querySelector('button');
+      const values = Object.fromEntries(new FormData(form));
+      Object.keys(values).forEach((key) => { values[key] = values[key].trim() || null; });
+      button.disabled = true;
+      status.className = 'form-status';
+      status.textContent = 'Sending…';
+      try {
+        const response = await fetch(`${TT_CONFIG.supabaseUrl}/rest/v1/partner_applications`, {
+          method: 'POST',
+          headers: {
+            apikey: TT_CONFIG.supabaseAnonKey,
+            Authorization: `Bearer ${TT_CONFIG.supabaseAnonKey}`,
+            'Content-Type': 'application/json',
+            Prefer: 'return=minimal',
+          },
+          body: JSON.stringify(values),
+        });
+        if (!response.ok) throw new Error(await response.text());
+        form.reset();
+        status.className = 'form-status ok';
+        status.textContent = 'Thank you! We will be in touch soon.';
+      } catch {
+        status.className = 'form-status error';
+        status.textContent = 'Something went wrong. Please check the fields and try again.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

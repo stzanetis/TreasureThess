@@ -1,0 +1,75 @@
+{
+  "expo": {
+    "name": "TreasureThess",
+    "slug": "TreasureThess",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "treasurethess",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.stzanetis.TreasureThess",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.stzanetis.TreasureThess",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#4a7c59"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.NFC",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.VIBRATE"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      [
+        "react-native-nfc-manager",
+        {
+          "nfcPermission": "TreasureThess reads the TreasureThess tags at sights to check you in.",
+          "includeNdefEntitlement": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "TreasureThess uses your location to show places near you and to confirm you are there when you check in."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choose a profile photo.",
+          "cameraPermission": "Take a profile photo.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "backgroundColor": "#faf6f0"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "af9604e3-61b4-4626-8e6f-0d281be85d89"
+      }
+    }
+  }
+}
